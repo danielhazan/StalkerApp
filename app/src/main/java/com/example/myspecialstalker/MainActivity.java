@@ -2,7 +2,9 @@ package com.example.myspecialstalker;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.arch.lifecycle.Observer;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -138,9 +140,23 @@ public class MainActivity extends AppCompatActivity {
     } ;
 
     public void sendSMS(String phoneNum){
+
+        //first,  send the SMS with a pending intent to sent, and another pending intent to delivery
+
+        Intent sent = new Intent(MainActivity.this,sentPendingIntent.class);
+        sent.putExtra("Channel",BCreceiver.CHANNEL_ID);
+        sent.putExtra("not",BCreceiver.NOT_ID);
+        PendingIntent sentService = PendingIntent.getService(MainActivity.this,1,sent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        Intent delivery= new Intent(MainActivity.this,sentPendingIntent.class);
+        sent.putExtra("Channel",BCreceiver.CHANNEL_ID);
+        sent.putExtra("not",BCreceiver.NOT_ID);
+        PendingIntent deliverService = PendingIntent.getService(MainActivity.this,2,delivery,PendingIntent.FLAG_UPDATE_CURRENT);
+
         if(infoMissing.getText().equals(READY_MSG)){
             SmsManager.getDefault().sendTextMessage(targetSMS.getText().toString().trim(),null,
-                    contentSMS.getText().toString().trim() + " " + phoneNum,null,null);
+                    contentSMS.getText().toString().trim() + " " + phoneNum,sentService,deliverService);
         }
 
     }
